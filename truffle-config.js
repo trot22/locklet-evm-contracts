@@ -58,7 +58,7 @@ module.exports = {
       provider: () => new HDWalletProvider(mnemonic, `https://mainnet.infura.io/v3/5a2a471eb4ea4a9c9b7dc85277f36164`),
       network_id: 1,       // Ethereum Mainnet's id
       gas: 10000000, 
-      gasPrice: 50000000000,  // 20 gwei (in wei) (default: 100 gwei)
+      gasPrice: 16000000000,  // 20 gwei (in wei) (default: 100 gwei)
       confirmations: 1,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200  // # of blocks before a deployment times out  (minimum/default: 50)
     },
@@ -73,7 +73,7 @@ module.exports = {
     bsc_mainnet: {
       provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed.binance.org`),
       network_id: 56,       // Binance Smart Chain Mainnet's id
-      gas: 5500000,
+      gas: 10000000,
       gasPrice: 12000000000,  // 20 gwei (in wei) (default: 100 gwei)
       confirmations: 1,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200  // # of blocks before a deployment times out  (minimum/default: 50)
