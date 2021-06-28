@@ -13,8 +13,8 @@ module.exports = async function (deployer, network) {
   switch (network) {
     case 'development':
       tokenInstance = await LockletToken.deployed();
-      lktPerEth = web3.utils.toWei('243900', 'ether');
-      maxEthPerAddr = web3.utils.toWei('5', 'ether');
+      lktPerEth = web3.utils.toWei('1000', 'ether');
+      maxEthPerAddr = web3.utils.toWei('1', 'ether');
       break;
     case 'ropsten':
     case 'bsc_testnet':
