@@ -10,7 +10,7 @@ contract LockletToken is ERC20 {
     uint256 private _totalSupply;
 
     constructor() ERC20("Locklet", "LKT") {
-        _initialSupply = 150000000 * 10 ** 18;
+        _initialSupply = 150000000 * 10**18;
         _totalSupply = _initialSupply;
         _mint(msg.sender, _initialSupply);
     }

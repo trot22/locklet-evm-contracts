@@ -21,7 +21,10 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const fs = require('fs');
-const mnemonic = fs.readFileSync("I:\\Locklet\\Ethereum\\0xE1E970b2f9A27Ee2B327434FE567D9d66BDCF5Ed\\0xE1E970b2f9A27Ee2B327434FE567D9d66BDCF5Ed.pk").toString().trim();
+const mnemonic = fs
+  .readFileSync('I:\\Locklet\\Ethereum\\0xE1E970b2f9A27Ee2B327434FE567D9d66BDCF5Ed\\0xE1E970b2f9A27Ee2B327434FE567D9d66BDCF5Ed.pk')
+  .toString()
+  .trim();
 
 module.exports = {
   /**
@@ -42,41 +45,42 @@ module.exports = {
     // options below to some value.
     //
     development: {
-      host: "127.0.0.1",     // Localhost (default: none)
-      port: 7545,            // Standard Ethereum port (default: none)
-      network_id: "5777",       // Any network (default: none)
+      host: '127.0.0.1', // Localhost (default: none)
+      port: 7545, // Standard Ethereum port (default: none)
+      network_id: 5777, // Any network (default: none)
     },
     ropsten: {
       provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/5a2a471eb4ea4a9c9b7dc85277f36164`),
-      network_id: 3,       // Ropsten's id
+      network_id: 3, // Ropsten's id
       gas: 5500000,
-      confirmations: 1,    // # of confs to wait between deployments. (default: 0)
-      timeoutBlocks: 50,  // # of blocks before a deployment times out  (minimum/default: 50)
-      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+      confirmations: 1, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 50, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true,
     },
     eth_mainnet: {
       provider: () => new HDWalletProvider(mnemonic, `https://mainnet.infura.io/v3/5a2a471eb4ea4a9c9b7dc85277f36164`),
-      network_id: 1,       // Ethereum Mainnet's id
-      gas: 10000000, 
-      gasPrice: 16000000000,  // 20 gwei (in wei) (default: 100 gwei)
-      confirmations: 1,    // # of confs to wait between deployments. (default: 0)
-      timeoutBlocks: 200  // # of blocks before a deployment times out  (minimum/default: 50)
+      network_id: 1, // Ethereum Mainnet's id
+      gas: 10000000,
+      gasPrice: 15000000000, // 15 gwei (in wei) (default: 100 gwei)
+      confirmations: 1, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true,
     },
     bsc_testnet: {
       provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545`),
-      network_id: 97,       // Binance Smart Chain Testnet's id
+      network_id: 97, // Binance Smart Chain Testnet's id
       gas: 5500000,
-      confirmations: 1,    // # of confs to wait between deployments. (default: 0)
-      timeoutBlocks: 50,  // # of blocks before a deployment times out  (minimum/default: 50)
-      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+      confirmations: 1, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 50, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true,
     },
     bsc_mainnet: {
       provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed.binance.org`),
-      network_id: 56,       // Binance Smart Chain Mainnet's id
+      network_id: 56, // Binance Smart Chain Mainnet's id
       gas: 10000000,
-      gasPrice: 12000000000,  // 20 gwei (in wei) (default: 100 gwei)
-      confirmations: 1,    // # of confs to wait between deployments. (default: 0)
-      timeoutBlocks: 200  // # of blocks before a deployment times out  (minimum/default: 50)
+      gasPrice: 12000000000, // 20 gwei (in wei) (default: 100 gwei)
+      confirmations: 1, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
     },
     // Another network with more advanced options...
     // advanced: {
@@ -113,7 +117,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.8.3",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: '0.8.3', // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       // settings: {          // See the solidity docs for advice about optimization and evmVersion
       //  optimizer: {
@@ -122,7 +126,7 @@ module.exports = {
       //  },
       //  evmVersion: "byzantium"
       // }
-    }
+    },
   },
 
   // Truffle DB is currently disabled by default; to enable it, change enabled: false to enabled: true
@@ -132,6 +136,14 @@ module.exports = {
   // $ truffle migrate --reset --compile-all
 
   db: {
-    enabled: false
-  }
+    enabled: false,
+  },
+
+  // Truffle Plugins
+
+  plugins: ['truffle-plugin-verify'],
+  api_keys: {
+    etherscan: '[...]',
+    bscscan: '[...]',
+  },
 };
