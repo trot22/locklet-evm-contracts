@@ -19,7 +19,7 @@ module.exports = async function (deployer, network) {
     case 'ropsten':
     case 'bsc_testnet':
       lktPerEth = web3.utils.toWei('243900', 'ether');
-      maxEthPerAddr = web3.utils.toWei('5', 'ether');
+      maxEthPerAddr = web3.utils.toWei('20', 'ether');
       break;
 
     case 'eth_mainnet':
