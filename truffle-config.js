@@ -50,15 +50,15 @@ module.exports = {
       network_id: 5777, // Any network (default: none)
     },
     ropsten: {
-      provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/5a2a471eb4ea4a9c9b7dc85277f36164`),
+      provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/977cd9e5495c4aefbd64756f634b44d1`),
       network_id: 3, // Ropsten's id
-      gas: 5500000,
-      confirmations: 1, // # of confs to wait between deployments. (default: 0)
+      gas: 7500000,
+      confirmations: 0, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 50, // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true,
     },
     eth_mainnet: {
-      provider: () => new HDWalletProvider(mnemonic, `https://mainnet.infura.io/v3/5a2a471eb4ea4a9c9b7dc85277f36164`),
+      provider: () => new HDWalletProvider(mnemonic, `https://mainnet.infura.io/v3/977cd9e5495c4aefbd64756f634b44d1`),
       network_id: 1, // Ethereum Mainnet's id
       gas: 10000000,
       gasPrice: 15000000000, // 15 gwei (in wei) (default: 100 gwei)
@@ -119,13 +119,14 @@ module.exports = {
     solc: {
       version: '0.8.3', // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
-      // settings: {          // See the solidity docs for advice about optimization and evmVersion
-      //  optimizer: {
-      //    enabled: false,
-      //    runs: 200
-      //  },
-      //  evmVersion: "byzantium"
-      // }
+      settings: {
+        // See the solidity docs for advice about optimization and evmVersion
+        optimizer: {
+          enabled: true,
+          runs: 5000,
+        },
+        // evmVersion: 'byzantium',
+      },
     },
   },
 
