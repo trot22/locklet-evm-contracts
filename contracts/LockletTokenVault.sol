@@ -226,9 +226,9 @@ contract LockletTokenVault is AccessControl, Pausable {
         require(lktToken.balanceOf(msg.sender) >= _revocationFlatFeeLktAmount, "LockletTokenVault: Not enough LKT to pay fees");
         require(lktToken.transferFrom(msg.sender, address(this), _revocationFlatFeeLktAmount));
 
-        uint256 burnAmount = _creationFlatFeeLktAmount.div(100).mul(45);
-        uint256 stakersRedisAmount = _creationFlatFeeLktAmount.div(100).mul(45);
-        uint256 foundationRedisAmount = _creationFlatFeeLktAmount.div(100).mul(10);
+        uint256 burnAmount = _revocationFlatFeeLktAmount.div(100).mul(45);
+        uint256 stakersRedisAmount = _revocationFlatFeeLktAmount.div(100).mul(45);
+        uint256 foundationRedisAmount = _revocationFlatFeeLktAmount.div(100).mul(10);
 
         require(lktToken.burn(burnAmount));
         require(lktToken.transfer(_stakersRedisAddress, stakersRedisAmount));
