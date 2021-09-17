@@ -1,18 +1,19 @@
 // contracts/LockletTokenVault.sol
 // SPDX-License-Identifier: No License
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.3;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/SignedSafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "./LockletToken.sol";
 
-contract LockletTokenVault is AccessControl, Pausable {
+contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeMath for uint16;
 
@@ -108,7 +109,7 @@ contract LockletTokenVault is AccessControl, Pausable {
         RecipientCallData[] calldata recipientsData,
         bool isRevocable,
         bool payFeesWithLkt
-    ) external whenNotPaused contractNotDeprecated {
+    ) external nonReentrant whenNotPaused contractNotDeprecated {
         require(Address.isContract(tokenAddress), "LockletTokenVault: Token address is not a contract");
         ERC20 token = ERC20(tokenAddress);
 
@@ -187,7 +188,7 @@ contract LockletTokenVault is AccessControl, Pausable {
         emit LockAdded(lockIndex);
     }
 
-    function claimLockedTokens(uint256 lockIndex) external whenNotPaused {
+    function claimLockedTokens(uint256 lockIndex) external nonReentrant whenNotPaused {
         Lock storage lock = _locks[lockIndex];
         require(lock.isActive == true, "LockletTokenVault: Lock not existing");
         require(lock.isRevoked == false, "LockletTokenVault: This lock has been revoked");
@@ -213,7 +214,7 @@ contract LockletTokenVault is AccessControl, Pausable {
         emit LockedTokensClaimed(lockIndex, recipient.recipientAddress, unlockedAmount);
     }
 
-    function revokeLock(uint256 lockIndex) external whenNotPaused {
+    function revokeLock(uint256 lockIndex) external nonReentrant whenNotPaused {
         Lock storage lock = _locks[lockIndex];
         require(lock.isActive == true, "LockletTokenVault: Lock not existing");
         require(lock.initiatorAddress == msg.sender, "LockletTokenVault: Forbidden");
@@ -265,7 +266,7 @@ contract LockletTokenVault is AccessControl, Pausable {
         emit LockRevoked(lockIndex, totalUnlockedAmount, totalLockedAmount);
     }
 
-    function pullRefund(address tokenAddress) external whenNotPaused {
+    function pullRefund(address tokenAddress) external nonReentrant whenNotPaused {
         uint256 refundAmount = getRefundAmount(tokenAddress);
         require(refundAmount > 0, "LockletTokenVault: No refund found for this token");
 
@@ -444,6 +445,7 @@ contract LockletTokenVault is AccessControl, Pausable {
     }
 
     function setStakersRedisAddress(address addr) external onlyGovernor {
+        require(addr != address(0), "LockletTokenVault: Invalid value");
         _stakersRedisAddress = addr;
     }
 
