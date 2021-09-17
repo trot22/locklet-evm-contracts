@@ -1,7 +1,7 @@
 // contracts/LockletPrivateSale.sol
 // SPDX-License-Identifier: No License
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.3;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
