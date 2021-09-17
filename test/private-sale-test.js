@@ -77,7 +77,10 @@ contract('LockletPrivateSale', async (accounts) => {
     await truffleAssert.passes(privateSaleInstance.withdrawEth({ from: owner }), 'withdraw ETH failed');
     const afterWithdrawEthBalance = await web3.eth.getBalance(owner);
 
-    assert.isOk(afterWithdrawEthBalance > currentOwnerEthBalance, 'The contract owner should have received 1 ETH');
+    const currentOwnerEthBalanceBN = web3.utils.toBN(currentOwnerEthBalance);
+    const afterWithdrawEthBalanceBN = web3.utils.toBN(afterWithdrawEthBalance)
+
+    assert.isOk(afterWithdrawEthBalanceBN.gt(currentOwnerEthBalanceBN), 'The contract owner should have received 1 ETH');
   });
 
   it('should set the LKT claimable if owner', async () => {
