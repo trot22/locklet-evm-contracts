@@ -119,9 +119,9 @@ contract LockletTokenVault is AccessControl, Pausable {
             require(lktToken.balanceOf(msg.sender) >= _creationFlatFeeLktAmount, "LockletTokenVault: Not enough LKT to pay fees");
             require(lktToken.transferFrom(msg.sender, address(this), _creationFlatFeeLktAmount));
 
-            uint256 burnAmount = _creationFlatFeeLktAmount.div(100).mul(45);
-            uint256 stakersRedisAmount = _creationFlatFeeLktAmount.div(100).mul(45);
-            uint256 foundationRedisAmount = _creationFlatFeeLktAmount.div(100).mul(10);
+            uint256 burnAmount = _creationFlatFeeLktAmount.mul(45).div(100);
+            uint256 stakersRedisAmount = _creationFlatFeeLktAmount.mul(45).div(100);
+            uint256 foundationRedisAmount = _creationFlatFeeLktAmount.mul(10).div(100);
 
             require(lktToken.burn(burnAmount));
             require(lktToken.transfer(_stakersRedisAddress, stakersRedisAmount));
@@ -130,14 +130,14 @@ contract LockletTokenVault is AccessControl, Pausable {
             require(token.balanceOf(msg.sender) >= totalAmount, "LockletTokenVault: Token insufficient balance");
             require(token.transferFrom(msg.sender, address(this), totalAmount));
         } else {
-            uint256 creationPercentFeeAmount = totalAmount.div(10000).mul(_creationPercentFee);
+            uint256 creationPercentFeeAmount = totalAmount.mul(_creationPercentFee).div(10000);
             uint256 totalAmountWithFees = totalAmount.add(creationPercentFeeAmount);
 
             require(token.balanceOf(msg.sender) >= totalAmountWithFees, "LockletTokenVault: Token insufficient balance");
             require(token.transferFrom(msg.sender, address(this), totalAmountWithFees));
 
-            uint256 stakersRedisAmount = creationPercentFeeAmount.div(100).mul(90);
-            uint256 foundationRedisAmount = creationPercentFeeAmount.div(100).mul(10);
+            uint256 stakersRedisAmount = creationPercentFeeAmount.mul(90).div(100);
+            uint256 foundationRedisAmount = creationPercentFeeAmount.mul(10).div(100);
 
             require(token.transfer(_stakersRedisAddress, stakersRedisAmount));
             require(token.transfer(_foundationRedisAddress, foundationRedisAmount));
@@ -226,9 +226,9 @@ contract LockletTokenVault is AccessControl, Pausable {
         require(lktToken.balanceOf(msg.sender) >= _revocationFlatFeeLktAmount, "LockletTokenVault: Not enough LKT to pay fees");
         require(lktToken.transferFrom(msg.sender, address(this), _revocationFlatFeeLktAmount));
 
-        uint256 burnAmount = _revocationFlatFeeLktAmount.div(100).mul(45);
-        uint256 stakersRedisAmount = _revocationFlatFeeLktAmount.div(100).mul(45);
-        uint256 foundationRedisAmount = _revocationFlatFeeLktAmount.div(100).mul(10);
+        uint256 burnAmount = _revocationFlatFeeLktAmount.mul(45).div(100);
+        uint256 stakersRedisAmount = _revocationFlatFeeLktAmount.mul(45).div(100);
+        uint256 foundationRedisAmount = _revocationFlatFeeLktAmount.mul(10).div(100);
 
         require(lktToken.burn(burnAmount));
         require(lktToken.transfer(_stakersRedisAddress, stakersRedisAmount));
@@ -439,6 +439,7 @@ contract LockletTokenVault is AccessControl, Pausable {
     }
 
     function setCreationPercentFee(uint256 amount) external onlyGovernor {
+        require(amount <= 10000, "LockletTokenVault: Invalid value");
         _creationPercentFee = amount;
     }
 
