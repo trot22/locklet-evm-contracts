@@ -77,9 +77,9 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
     // #region Events
 
-    event LockAdded(uint256 lockIndex);
-    event LockedTokensClaimed(uint256 lockIndex, address indexed recipientAddress, uint256 claimedAmount);
-    event LockRevoked(uint256 lockIndex, uint256 unlockedAmount, uint256 remainingLockedAmount);
+    event LockAdded(uint256 indexed lockIndex);
+    event LockedTokensClaimed(uint256 indexed lockIndex, address indexed recipientAddress, uint256 claimedAmount);
+    event LockRevoked(uint256 indexed lockIndex, uint256 unlockedAmount, uint256 remainingLockedAmount);
     event LockRefundPulled(address indexed recipientAddress, address indexed tokenAddress, uint256 refundedAmount);
 
     // #endregion
@@ -402,12 +402,12 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
     function calculateClaim(Lock storage lock, Recipient storage recipient) private view returns (uint16, uint256) {
         require(recipient.amountClaimed < recipient.amount, "LockletTokenVault: The recipient has already claimed the maximum amount");
 
-        if (block.timestamp < lock.startTime) {
+        if (blockTime() < lock.startTime) {
             return (0, 0);
         }
 
         // check if cliff has reached
-        uint256 elapsedDays = blockTime().sub(lock.startTime - 1 days).div(1 days);
+        uint256 elapsedDays = blockTime().sub(lock.startTime).div(1 days);
 
         if (elapsedDays >= lock.durationInDays) {
             // if over duration, all tokens vested
