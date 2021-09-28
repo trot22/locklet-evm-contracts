@@ -115,7 +115,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
         require(totalAmount > 0, "LockletTokenVault: The total amount is equal to zero");
 
-        if (payFeesWithLkt) {
+        if (payFeesWithLkt && _creationFlatFeeLktAmount > 0) {
             LockletToken lktToken = lockletToken();
             require(lktToken.balanceOf(msg.sender) >= _creationFlatFeeLktAmount, "LockletTokenVault: Not enough LKT to pay fees");
             require(lktToken.transferFrom(msg.sender, address(this), _creationFlatFeeLktAmount));
@@ -130,7 +130,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
             require(token.balanceOf(msg.sender) >= totalAmount, "LockletTokenVault: Token insufficient balance");
             require(token.transferFrom(msg.sender, address(this), totalAmount));
-        } else {
+        } else if (_creationPercentFee > 0) {
             uint256 creationPercentFeeAmount = totalAmount.mul(_creationPercentFee).div(10000);
             uint256 totalAmountWithFees = totalAmount.add(creationPercentFeeAmount);
 
@@ -223,17 +223,19 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
         lock.isRevoked = true;
 
-        LockletToken lktToken = lockletToken();
-        require(lktToken.balanceOf(msg.sender) >= _revocationFlatFeeLktAmount, "LockletTokenVault: Not enough LKT to pay fees");
-        require(lktToken.transferFrom(msg.sender, address(this), _revocationFlatFeeLktAmount));
+        if (_revocationFlatFeeLktAmount > 0) {
+            LockletToken lktToken = lockletToken();
+            require(lktToken.balanceOf(msg.sender) >= _revocationFlatFeeLktAmount, "LockletTokenVault: Not enough LKT to pay fees");
+            require(lktToken.transferFrom(msg.sender, address(this), _revocationFlatFeeLktAmount));
 
-        uint256 burnAmount = _revocationFlatFeeLktAmount.mul(45).div(100);
-        uint256 stakersRedisAmount = _revocationFlatFeeLktAmount.mul(45).div(100);
-        uint256 foundationRedisAmount = _revocationFlatFeeLktAmount.mul(10).div(100);
+            uint256 burnAmount = _revocationFlatFeeLktAmount.mul(45).div(100);
+            uint256 stakersRedisAmount = _revocationFlatFeeLktAmount.mul(45).div(100);
+            uint256 foundationRedisAmount = _revocationFlatFeeLktAmount.mul(10).div(100);
 
-        require(lktToken.burn(burnAmount));
-        require(lktToken.transfer(_stakersRedisAddress, stakersRedisAmount));
-        require(lktToken.transfer(_foundationRedisAddress, foundationRedisAmount));
+            require(lktToken.burn(burnAmount));
+            require(lktToken.transfer(_stakersRedisAddress, stakersRedisAmount));
+            require(lktToken.transfer(_foundationRedisAddress, foundationRedisAmount));
+        }
 
         Recipient[] storage recipients = _locksRecipients[lockIndex];
 
@@ -307,7 +309,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
         LockWithRecipients[] memory results = new LockWithRecipients[](uint256(pageSize));
         uint256 index = 0;
-        
+
         for (currentLockIndex; currentLockIndex >= queryEndLockIndex; currentLockIndex--) {
             uint256 currentLockIndexAsUnsigned = uint256(currentLockIndex);
             if (currentLockIndexAsUnsigned <= getLocksLength().sub(1)) {
@@ -326,7 +328,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
         LockWithRecipients[] memory results = new LockWithRecipients[](initiatorLocksLength);
 
-        for (uint index = 0; index < initiatorLocksLength; index++) {
+        for (uint256 index = 0; index < initiatorLocksLength; index++) {
             uint256 lockIndex = _initiatorsLocksIndexes[initiatorAddress][index];
             results[index] = getLock(lockIndex);
         }
@@ -334,13 +336,13 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
         return results;
     }
 
-    function getLocksByRecipient(address recipientAddress) public view returns (LockWithRecipients[] memory) {        
+    function getLocksByRecipient(address recipientAddress) public view returns (LockWithRecipients[] memory) {
         uint256 recipientLocksLength = _recipientsLocksIndexes[recipientAddress].length;
         require(recipientLocksLength > 0, "LockletTokenVault: The recipient has no lock");
 
         LockWithRecipients[] memory results = new LockWithRecipients[](recipientLocksLength);
 
-        for (uint index = 0; index < recipientLocksLength; index++) {
+        for (uint256 index = 0; index < recipientLocksLength; index++) {
             uint256 lockIndex = _recipientsLocksIndexes[recipientAddress][index];
             results[index] = getLock(lockIndex);
         }
@@ -432,15 +434,17 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
     // #region Governance
 
     function setCreationFlatFeeLktAmount(uint256 amount) external onlyGovernor {
+        require(amount >= 0, "LockletTokenVault: Invalid value");
         _creationFlatFeeLktAmount = amount;
     }
 
     function setRevocationFlatFeeLktAmount(uint256 amount) external onlyGovernor {
+        require(amount >= 0, "LockletTokenVault: Invalid value");
         _revocationFlatFeeLktAmount = amount;
     }
 
     function setCreationPercentFee(uint256 amount) external onlyGovernor {
-        require(amount <= 10000, "LockletTokenVault: Invalid value");
+        require(amount >= 0 && amount <= 10000, "LockletTokenVault: Invalid value");
         _creationPercentFee = amount;
     }
 
@@ -465,12 +469,12 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
     // #region Modifiers
 
-    modifier onlyGovernor {
+    modifier onlyGovernor() {
         require(hasRole(GOVERNOR_ROLE, msg.sender), "LockletTokenVault: Caller is not a GOVERNOR");
         _;
     }
 
-    modifier contractNotDeprecated {
+    modifier contractNotDeprecated() {
         require(!_isDeprecated, "LockletTokenVault: This version of the contract is deprecated");
         _;
     }
