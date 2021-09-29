@@ -95,7 +95,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
         _creationFlatFeeLktAmount = 0;
         _revocationFlatFeeLktAmount = 0;
-        _creationPercentFee = 35;
+        _creationPercentFee = 0;
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(GOVERNOR_ROLE, msg.sender);
@@ -115,33 +115,42 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
         require(totalAmount > 0, "LockletTokenVault: The total amount is equal to zero");
 
-        if (payFeesWithLkt && _creationFlatFeeLktAmount > 0) {
+        if (payFeesWithLkt) {
             LockletToken lktToken = lockletToken();
-            require(lktToken.balanceOf(msg.sender) >= _creationFlatFeeLktAmount, "LockletTokenVault: Not enough LKT to pay fees");
-            require(lktToken.transferFrom(msg.sender, address(this), _creationFlatFeeLktAmount));
 
-            uint256 burnAmount = _creationFlatFeeLktAmount.mul(45).div(100);
-            uint256 stakersRedisAmount = _creationFlatFeeLktAmount.mul(45).div(100);
-            uint256 foundationRedisAmount = _creationFlatFeeLktAmount.mul(10).div(100);
+            if (_creationFlatFeeLktAmount > 0) {
+                require(lktToken.balanceOf(msg.sender) >= _creationFlatFeeLktAmount, "LockletTokenVault: Not enough LKT to pay fees");
+                require(lktToken.transferFrom(msg.sender, address(this), _creationFlatFeeLktAmount));
 
-            require(lktToken.burn(burnAmount));
-            require(lktToken.transfer(_stakersRedisAddress, stakersRedisAmount));
-            require(lktToken.transfer(_foundationRedisAddress, foundationRedisAmount));
+                uint256 burnAmount = _creationFlatFeeLktAmount.mul(45).div(100);
+                uint256 stakersRedisAmount = _creationFlatFeeLktAmount.mul(45).div(100);
+                uint256 foundationRedisAmount = _creationFlatFeeLktAmount.mul(10).div(100);
+
+                require(lktToken.burn(burnAmount));
+                require(lktToken.transfer(_stakersRedisAddress, stakersRedisAmount));
+                require(lktToken.transfer(_foundationRedisAddress, foundationRedisAmount));
+            }
 
             require(token.balanceOf(msg.sender) >= totalAmount, "LockletTokenVault: Token insufficient balance");
             require(token.transferFrom(msg.sender, address(this), totalAmount));
-        } else if (_creationPercentFee > 0) {
-            uint256 creationPercentFeeAmount = totalAmount.mul(_creationPercentFee).div(10000);
+        } else {
+            uint256 creationPercentFeeAmount = 0;
+            if (_creationPercentFee > 0) {
+                creationPercentFeeAmount = totalAmount.mul(_creationPercentFee).div(10000);
+            }
+
             uint256 totalAmountWithFees = totalAmount.add(creationPercentFeeAmount);
 
             require(token.balanceOf(msg.sender) >= totalAmountWithFees, "LockletTokenVault: Token insufficient balance");
             require(token.transferFrom(msg.sender, address(this), totalAmountWithFees));
 
-            uint256 stakersRedisAmount = creationPercentFeeAmount.mul(90).div(100);
-            uint256 foundationRedisAmount = creationPercentFeeAmount.mul(10).div(100);
+            if (creationPercentFeeAmount > 0) {
+                uint256 stakersRedisAmount = creationPercentFeeAmount.mul(90).div(100);
+                uint256 foundationRedisAmount = creationPercentFeeAmount.mul(10).div(100);
 
-            require(token.transfer(_stakersRedisAddress, stakersRedisAmount));
-            require(token.transfer(_foundationRedisAddress, foundationRedisAmount));
+                require(token.transfer(_stakersRedisAddress, stakersRedisAmount));
+                require(token.transfer(_foundationRedisAddress, foundationRedisAmount));
+            }
         }
 
         uint256 lockIndex = _nextLockIndex;
