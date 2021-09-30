@@ -3,3 +3,4 @@ build
 .vscode
 .openzeppelin
 .secret
+.DS_Store

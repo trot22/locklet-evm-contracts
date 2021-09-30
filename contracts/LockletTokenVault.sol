@@ -15,8 +15,6 @@ import "./LockletToken.sol";
 
 contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
-    using SafeMath for uint16;
-
     using SignedSafeMath for int256;
 
     bytes32 public constant GOVERNOR_ROLE = keccak256("GOVERNOR_ROLE");
@@ -31,7 +29,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
     struct Recipient {
         address recipientAddress;
         uint256 amount;
-        uint16 daysClaimed;
+        uint256 daysClaimed;
         uint256 amountClaimed;
         bool isActive;
     }
@@ -40,7 +38,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
         uint256 creationTime;
         address tokenAddress;
         uint256 startTime;
-        uint16 durationInDays;
+        uint256 durationInDays;
         address initiatorAddress;
         bool isRevocable;
         bool isRevoked;
@@ -104,8 +102,8 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
     function addLock(
         address tokenAddress,
         uint256 totalAmount,
-        uint16 cliffInDays,
-        uint16 durationInDays,
+        uint256 cliffInDays,
+        uint256 durationInDays,
         RecipientCallData[] calldata recipientsData,
         bool isRevocable,
         bool payFeesWithLkt
@@ -209,13 +207,13 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
         Recipient storage recipient = recipients[uint256(recipientIndex)];
 
-        uint16 daysVested;
+        uint256 daysVested;
         uint256 unlockedAmount;
         (daysVested, unlockedAmount) = calculateClaim(lock, recipient);
         require(unlockedAmount > 0, "LockletTokenVault: The amount of unlocked tokens is equal to zero");
 
-        recipient.daysClaimed = uint16(recipient.daysClaimed.add(daysVested));
-        recipient.amountClaimed = uint256(recipient.amountClaimed.add(unlockedAmount));
+        recipient.daysClaimed = recipient.daysClaimed.add(daysVested);
+        recipient.amountClaimed = recipient.amountClaimed.add(unlockedAmount);
 
         ERC20 token = ERC20(lock.tokenAddress);
 
@@ -259,7 +257,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
             totalAmount = totalAmount.add(recipient.amount);
 
-            uint16 daysVested;
+            uint256 daysVested;
             uint256 unlockedAmount;
             (daysVested, unlockedAmount) = calculateClaim(lock, recipient);
 
@@ -363,7 +361,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
         return _refunds[msg.sender][tokenAddress];
     }
 
-    function getClaimByLockAndRecipient(uint256 lockIndex, address recipientAddress) public view returns (uint16, uint256) {
+    function getClaimByLockAndRecipient(uint256 lockIndex, address recipientAddress) public view returns (uint256, uint256) {
         Lock storage lock = _locks[lockIndex];
         require(lock.isActive == true, "LockletTokenVault: Lock not existing");
 
@@ -374,7 +372,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
 
         Recipient storage recipient = recipients[uint256(recipientIndex)];
 
-        uint16 daysVested;
+        uint256 daysVested;
         uint256 unlockedAmount;
         (daysVested, unlockedAmount) = calculateClaim(lock, recipient);
 
@@ -408,7 +406,7 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
         return recipientIndex;
     }
 
-    function calculateClaim(Lock storage lock, Recipient storage recipient) private view returns (uint16, uint256) {
+    function calculateClaim(Lock storage lock, Recipient storage recipient) private view returns (uint256, uint256) {
         require(recipient.amountClaimed < recipient.amount, "LockletTokenVault: The recipient has already claimed the maximum amount");
 
         if (blockTime() < lock.startTime) {
@@ -423,9 +421,9 @@ contract LockletTokenVault is AccessControl, Pausable, ReentrancyGuard {
             uint256 remainingAmount = recipient.amount.sub(recipient.amountClaimed);
             return (lock.durationInDays, remainingAmount);
         } else {
-            uint16 daysVested = uint16(elapsedDays.sub(recipient.daysClaimed));
-            uint256 unlockedAmountPerDay = recipient.amount.div(uint256(lock.durationInDays));
-            uint256 unlockedAmount = uint256(daysVested.mul(unlockedAmountPerDay));
+            uint256 daysVested = elapsedDays.sub(recipient.daysClaimed);
+            uint256 unlockedAmountPerDay = recipient.amount.div(lock.durationInDays);
+            uint256 unlockedAmount = daysVested.mul(unlockedAmountPerDay);
             return (daysVested, unlockedAmount);
         }
     }
