@@ -78,7 +78,24 @@ module.exports = {
       provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed.binance.org`),
       network_id: 56, // Binance Smart Chain Mainnet's id
       gas: 10000000,
-      gasPrice: 12000000000, // 20 gwei (in wei) (default: 100 gwei)
+      gasPrice: 12000000000, // (default: 100 gwei)
+      confirmations: 1, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
+    },
+    bttc_testnet: {
+      provider: () => new HDWalletProvider(mnemonic, `https://test-rpc.bittorrentchain.io`),
+      network_id: 1028, // BitTorrent Chain Testnet's id
+      gas: 20000000,
+      gasPrice: 300000000000000, // 300,000 gwei (in wei) (default: 100 gwei)
+      confirmations: 1, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 50, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true,
+    },
+    bttc_mainnet: {
+      provider: () => new HDWalletProvider(mnemonic, `https://rpc.bittorrentchain.io`),
+      network_id: 1028, // 199 BitTorrent Chain Mainnet's id
+      gas: 20000000,
+      gasPrice: 300000000000000, // 300,000 gwei (in wei) (default: 100 gwei)
       confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
     },
